@@ -1,0 +1,42 @@
+jobs:
+  # Job 1: merge a user's profile with their usage stats, then print a summary.
+  - steps:
+      - id: read_profile
+        action: read_json_file
+        args: "'examples/data/user_profile.json'"
+        as: profile
+      - id: read_stats
+        action: read_json_file
+        args: "'examples/data/user_stats.json'"
+        as: stats
+      - id: merge_user
+        expression: "merge(profile.user, stats.user)"
+        as: merged
+      - id: select_user
+        expression: "{name: merged.name, email: merged.email, login_count: merged.login_count}"
+        as: summary
+      - id: print_user
+        action: print
+        args: "summary"
+        as: printed
+
+  # Job 2: merge an order's header with its line items, then print a summary.
+  - steps:
+      - id: read_header
+        action: read_json_file
+        args: "'examples/data/order_header.json'"
+        as: header
+      - id: read_items
+        action: read_json_file
+        args: "'examples/data/order_items.json'"
+        as: items
+      - id: merge_order
+        expression: "merge(header.order, items.order)"
+        as: merged
+      - id: select_order
+        expression: "{id: merged.id, customer: merged.customer, total: merged.total, item_count: length(merged.items)}"
+        as: summary
+      - id: print_order
+        action: print
+        args: "summary"
+        as: printed
